@@ -1,12 +1,18 @@
 package Shipping_Company;
 
-public class Order {
-    String cityName;
-    int cargoSize =0;
-    int ordercost=1000;
+class Order{
+    private  int cargoWeight;
+    private  boolean cancelled;
 
-    public Order(String cityName, int cargoSize) {
-        this.cityName = cityName;
-        this.cargoSize = cargoSize;
+    public Order(int cargoWeight) {
+        this.cargoWeight = cargoWeight;
+        this.cancelled = false;
+    }
+
+    public void cancelOrder(){
+        this.cancelled=true;
+    }
+    public boolean isCancelled() {
+        return cancelled;
     }
 }

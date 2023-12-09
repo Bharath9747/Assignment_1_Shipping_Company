@@ -1,22 +1,55 @@
 package Shipping_Company;
 
-public class Ship extends Thread {
-    String cityName ;
-    int cargoSize=0;
-    boolean isTravel = false;
-    public Ship(String cityName) {
-        this.cityName = cityName;
+import java.util.concurrent.BlockingQueue;
 
+import static Shipping_Company.MainShippingCompany.creditIncome;
+
+class Ship  implements  Runnable{
+    private String name;
+    private BlockingQueue<Order> ordersQueue;
+
+    public Ship(String name, BlockingQueue<Order> ordersQueue) {
+        this.name = name;
+        this.ordersQueue = ordersQueue;
+        this.totaltrips = 0;
     }
 
+    @Override
+    public String toString() {
+        return "Ship{" +
+                "name='" + name + '\'' +
+                ", totaltrips=" + totaltrips +
+                '}';
+    }
 
-    public void checkDepart() throws InterruptedException {
-        if(this.cargoSize>=50) {
-            this.isTravel = true;
-            sleep(10000);
-            this.cityName = "Gotham City";
-            this.isTravel = false;
-            this.cargoSize=0;
+    private int totaltrips;
+
+    @Override
+    public void run() {
+       while(true)
+       {
+           try{
+               Order order = ordersQueue.take();
+               processOrder(order);
+               if( totaltrips%5==0)
+               {
+                   System.out.println(name+" is going for maintenance.");
+
+               }
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+           }
+       }
+    }
+
+    private void processOrder(Order order) throws InterruptedException {
+        if(order.isCancelled()){
+            System.out.println(name+" canceled order. Set back by $250");
+        }
+        else {
+            System.out.println(name+" processed order. Earned $1000 "+totaltrips);
+            creditIncome();
+            totaltrips++;
         }
     }
 }

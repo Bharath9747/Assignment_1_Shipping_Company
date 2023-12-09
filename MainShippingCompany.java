@@ -1,43 +1,44 @@
 package Shipping_Company;
 
-import java.util.Scanner;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class MainShippingCompany {
-    public static void main(String[] args) throws InterruptedException {
-        Scanner sc = new Scanner(System.in);
-        Ship ship = new Ship("Atlanta");
+class MainShippingCompany{
+    static int totaltrips;
 
-        long totalcost=0;
-        while(true) {
-            System.out.println("1.Create a Order");
-            System.out.println("2.View Ships Status");
-            System.out.println("Enter a choices");
-            int ch = sc.nextInt();
-            switch (ch)
+    public static void main(String[] args) {
+
+        BlockingQueue<Order> cargoQueue = new ArrayBlockingQueue<>(500);
+        Ship[] ships = new Ship[5];
+
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+
+        for(int i=1;i<=5;i++)
+        {
+            ships[i-1] = new Ship("Ship "+i,cargoQueue);
+            executorService.submit(ships[i-1]);
+        }
+        while (true)
+        {
+            if(totaltrips==1000)
             {
-                case 1 :
-                    String cityName = sc.next();
-                    int cargoSize = sc.nextInt();
-                    /*if(!(cargoSize>=1 && cargoSize<=10))
-                    {
-                        System.out.println("Cargo Size Wrong");
-                        break;
-                    }*/
-
-                    Order order = new Order(cityName,cargoSize);
-                    ship.cargoSize=cargoSize+ship.cargoSize;
-                    ship.checkDepart();
-                    totalcost+=order.ordercost;
-                    break;
-                case 2 :
-                    System.out.println("============");
-                    System.out.println(ship.isTravel?"Travelling to Atlanta":"Waiting for Cargo in "+ship.cityName);
-                    System.out.println("Cargo Size "+ship.cargoSize);
-                    System.out.println("============");
-                    break;
-                default: System.exit(0);
+                System.out.println("Total trips : "+totaltrips);
+                System.out.println(Arrays.toString(ships));
+                executorService.shutdownNow();
+                System.exit(0);
             }
+            Order order = new Order(new Random().nextInt(51)+50);
+            cargoQueue.offer(order);
+
         }
 
+    }
+    static void creditIncome(){
+        totaltrips++;
     }
 }
