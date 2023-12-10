@@ -1,18 +1,28 @@
 package Shipping_Company;
 
+import java.time.Instant;
+import java.util.Random;
+
 class Order{
-    private  int cargoWeight;
-    private  boolean cancelled;
+    private int cargoWeight;
 
-    public Order(int cargoWeight) {
-        this.cargoWeight = cargoWeight;
-        this.cancelled = false;
+    @Override
+    public String toString() {
+        return  "cargoWeight=" + cargoWeight +
+                ", destination='" + destination +"'";
     }
 
-    public void cancelOrder(){
-        this.cancelled=true;
+    private String destination;
+
+    public Order(){
+        this.cargoWeight=new Random().nextInt(41)+10;
+        this.destination = (new Random().nextBoolean())? "Gotham City": "Atlanta";
     }
-    public boolean isCancelled() {
-        return cancelled;
+    public int getCargoWeight(){
+        return cargoWeight;
+    }
+
+    public String getDestination(){
+        return destination;
     }
 }

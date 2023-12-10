@@ -1,55 +1,37 @@
 package Shipping_Company;
 
-import java.util.concurrent.BlockingQueue;
-
-import static Shipping_Company.MainShippingCompany.creditIncome;
-
-class Ship  implements  Runnable{
-    private String name;
-    private BlockingQueue<Order> ordersQueue;
-
-    public Ship(String name, BlockingQueue<Order> ordersQueue) {
-        this.name = name;
-        this.ordersQueue = ordersQueue;
-        this.totaltrips = 0;
-    }
+class Ship extends Thread{
+    static final int MIN_CARGO = 50;
+    private static final int MAX_CARGO = 300;
+    private ShippingCompany shippingCompany;
 
     @Override
     public String toString() {
         return "Ship{" +
-                "name='" + name + '\'' +
-                ", totaltrips=" + totaltrips +
+                "shippingCompany=" + shippingCompany +
                 '}';
     }
 
-    private int totaltrips;
-
-    @Override
-    public void run() {
-       while(true)
-       {
-           try{
-               Order order = ordersQueue.take();
-               processOrder(order);
-               if( totaltrips%5==0)
-               {
-                   System.out.println(name+" is going for maintenance.");
-
-               }
-           } catch (InterruptedException e) {
-               throw new RuntimeException(e);
-           }
-       }
+    public Ship(ShippingCompany shippingCompany){
+        this.shippingCompany = shippingCompany;
     }
+    @Override
+    public void run(){
+        while(shippingCompany.getTotalEarnings()<1000000)
+        {
+            Order order = shippingCompany.getNextOrder();
+            if(order!=null)
+            {
+                int cargoPick = Math.max(MIN_CARGO,order.getCargoWeight());
+                cargoPick = Math.min(cargoPick,MAX_CARGO);
+                shippingCompany.processOrder(order,cargoPick);
+                try {
+                    shippingCompany.sendToMaintenance(this);
 
-    private void processOrder(Order order) throws InterruptedException {
-        if(order.isCancelled()){
-            System.out.println(name+" canceled order. Set back by $250");
-        }
-        else {
-            System.out.println(name+" processed order. Earned $1000 "+totaltrips);
-            creditIncome();
-            totaltrips++;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }
